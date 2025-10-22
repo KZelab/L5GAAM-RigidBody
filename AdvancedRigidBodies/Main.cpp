@@ -87,7 +87,6 @@ int main() {
                         draggedBody = physics.getBodyAt(mousePos);
                         if (draggedBody) {
                             dragOffset = draggedBody->getPosition() - mousePos;
-                            draggedBody->wake();
                         }
                     }
                     if (mousePressed->button == sf::Mouse::Button::Left) {

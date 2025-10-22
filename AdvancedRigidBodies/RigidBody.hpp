@@ -139,11 +139,6 @@ public:
     void drawMotionTrail(sf::RenderWindow& window);
     void drawDebug(sf::RenderWindow& window);
 
-    /**
-     * Wake a resting body (make it active again)
-     * Used when external forces should affect a "sleeping" object
-     */
-    void wake();
 
     // Debug/visualization helpers
     void addCollisionInfo(const sf::Vector2f& point, const sf::Vector2f& normal, float penetration);
@@ -158,14 +153,13 @@ public:
     float getAngularVelocity() const { return angularVelocity; }
     float getInertia() const { return inertia; }
     bool getIsStatic() const { return isStatic; }
-    bool getIsResting() const { return isResting; }
     sf::Color getColour() const { return colour; }
     const std::deque<MotionTrail>& getMotionTrail() const { return motionTrail; }
 
     // Setters - Modify physics state
     void setPosition(const sf::Vector2f& pos) { position = pos; }
-    void setVelocity(const sf::Vector2f& vel) { velocity = vel; isResting = false; }
-    void setAngularVelocity(float av) { angularVelocity = av; isResting = false; }
+    void setVelocity(const sf::Vector2f& vel) { velocity = vel; }
+    void setAngularVelocity(float av) { angularVelocity = av; }
     void setRestitution(float r) { restitution = r; }
     void setFriction(float f) { friction = f; }
 
@@ -249,7 +243,6 @@ private:
     // Visual and state properties
     sf::Color colour;     // Display color
     bool isStatic;        // Immovable object (infinite mass)?
-    bool isResting;       // Object at rest (sleeping for performance)?
 
     // Visual effects
     float squashStretch;  // Deformation factor for impact animation
@@ -270,16 +263,4 @@ private:
     static constexpr size_t MAX_TRAIL_LENGTH = 30;       // Max trail points
     static constexpr float TRAIL_UPDATE_INTERVAL = 0.05f; // Add point every 0.05s
     float trailTimer;  // Time until next trail point
-
-    /**
-     * SLEEP/REST OPTIMIZATION
-     *
-     * When objects barely move, mark them as "resting" to skip physics updates
-     * Improves performance with many static objects
-     *
-     * Thresholds determine when object is considered "at rest":
-     */
-    static constexpr float REST_VELOCITY_THRESHOLD = 2.0f;           // pixels/second
-    static constexpr float REST_ACCELERATION_THRESHOLD = 5.0f;       // pixels/second²
-    static constexpr float REST_ANGULAR_VELOCITY_THRESHOLD = 0.1f;   // radians/second
 };

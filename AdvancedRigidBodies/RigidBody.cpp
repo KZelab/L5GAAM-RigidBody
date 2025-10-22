@@ -8,21 +8,21 @@ RigidBody::RigidBody(sf::Vector2f pos, float r, float m, sf::Color col, bool sta
     : position(pos), radius(r), mass(m), colour(col), isStatic(stat),
       velocity(0.f, 0.f), acceleration(0.f, 0.f), rotation(0.f),
       angularVelocity(0.f), angularAcceleration(0.f),
-      restitution(0.6f), friction(0.3f), isResting(false), trailTimer(0.0f),
+      restitution(0.6f), friction(0.3f), trailTimer(0.0f),
       impactIntensity(0.0f), squashStretch(1.0f), appliedForce(0.f, 0.f) {
 
     inertia = 0.5f * mass * radius * radius;
 }
 
 void RigidBody::applyForce(const sf::Vector2f& force) {
-    if (!isStatic && !isResting) {
+    if (!isStatic) {
         acceleration += force / mass;
         appliedForce = force;
     }
 }
 
 void RigidBody::applyForceAtPoint(const sf::Vector2f& force, const sf::Vector2f& point) {
-    if (!isStatic && !isResting) {
+    if (!isStatic) {
         acceleration += force / mass;
 
         sf::Vector2f r = point - position;
@@ -32,41 +32,24 @@ void RigidBody::applyForceAtPoint(const sf::Vector2f& force, const sf::Vector2f&
 }
 
 void RigidBody::applyTorque(float torque) {
-    if (!isStatic && !isResting) {
+    if (!isStatic) {
         angularAcceleration += torque / inertia;
     }
 }
 
 void RigidBody::update(float deltaTime) {
     if (!isStatic) {
-        float velocityMagnitude = length(velocity);
-        float accelerationMagnitude = length(acceleration);
-        float angularVelMagnitude = std::abs(angularVelocity);
+        velocity += acceleration * deltaTime;
+        position += velocity * deltaTime;
+        velocity *= 0.99f;
 
-        if (velocityMagnitude < REST_VELOCITY_THRESHOLD &&
-            accelerationMagnitude < REST_ACCELERATION_THRESHOLD &&
-            angularVelMagnitude < REST_ANGULAR_VELOCITY_THRESHOLD) {
-            velocity = sf::Vector2f(0.f, 0.f);
-            acceleration = sf::Vector2f(0.f, 0.f);
-            angularVelocity = 0.f;
-            angularAcceleration = 0.f;
-            isResting = true;
-        } else {
-            isResting = false;
-        }
+        angularVelocity += angularAcceleration * deltaTime;
+        rotation += angularVelocity * deltaTime;
+        angularVelocity *= 0.98f;
 
-        if (!isResting) {
-            velocity += acceleration * deltaTime;
-            position += velocity * deltaTime;
-            velocity *= 0.99f;
-
-            angularVelocity += angularAcceleration * deltaTime;
-            rotation += angularVelocity * deltaTime;
-            angularVelocity *= 0.98f;
-
-            trailTimer += deltaTime;
-            if (trailTimer >= TRAIL_UPDATE_INTERVAL) {
-                trailTimer = 0.0f;
+        trailTimer += deltaTime;
+        if (trailTimer >= TRAIL_UPDATE_INTERVAL) {
+            trailTimer = 0.0f;
                 motionTrail.push_front({position, 1.0f});
                 if (motionTrail.size() > MAX_TRAIL_LENGTH) {
                     motionTrail.pop_back();
@@ -99,7 +82,6 @@ void RigidBody::checkBoundaryCollision(float width, float height) {
             angularVelocity *= (1.0f - friction);
             normal = sf::Vector2f(1.f, 0.f);
             collided = true;
-            isResting = false;
         }
         if (position.x + radius > width) {
             position.x = width - radius;
@@ -108,7 +90,6 @@ void RigidBody::checkBoundaryCollision(float width, float height) {
             angularVelocity *= (1.0f - friction);
             normal = sf::Vector2f(-1.f, 0.f);
             collided = true;
-            isResting = false;
         }
         if (position.y - radius < 0) {
             position.y = radius;
@@ -117,7 +98,6 @@ void RigidBody::checkBoundaryCollision(float width, float height) {
             angularVelocity *= (1.0f - friction);
             normal = sf::Vector2f(0.f, 1.f);
             collided = true;
-            isResting = false;
         }
         if (position.y + radius > height) {
             position.y = height - radius;
@@ -126,7 +106,6 @@ void RigidBody::checkBoundaryCollision(float width, float height) {
             angularVelocity *= (1.0f - friction);
             normal = sf::Vector2f(0.f, -1.f);
             collided = true;
-            isResting = false;
         }
 
         if (collided) {
@@ -137,8 +116,7 @@ void RigidBody::checkBoundaryCollision(float width, float height) {
 }
 
 void RigidBody::draw(sf::RenderWindow& window, bool showVelocity) {
-    sf::Color displayColour = isResting ?
-        sf::Color(colour.r / 2, colour.g / 2, colour.b / 2) : colour;
+    sf::Color displayColour = colour;
 
     float flashIntensity = impactIntensity * 100.0f;
     displayColour.r = std::min(255, static_cast<int>(displayColour.r + flashIntensity));
@@ -179,7 +157,7 @@ void RigidBody::draw(sf::RenderWindow& window, bool showVelocity) {
     }
     window.draw(shape);
 
-    if (!isStatic && !isResting) {
+    if (!isStatic) {
         sf::CircleShape core(radius * 0.4f);
         core.setPosition(position - sf::Vector2f(radius * 0.4f, radius * 0.4f));
         core.setFillColor(sf::Color(
@@ -200,7 +178,7 @@ void RigidBody::draw(sf::RenderWindow& window, bool showVelocity) {
         window.draw(line.data(), line.size(), sf::PrimitiveType::Lines);
     }
 
-    if (showVelocity && !isStatic && !isResting && length(velocity) > 1.f) {
+    if (showVelocity && !isStatic && length(velocity) > 1.f) {
         std::array<sf::Vertex, 2> line = {
             sf::Vertex(position, sf::Color(255, 255, 0, 200)),
             sf::Vertex(position + normalise(velocity) * (radius * 2.0f), sf::Color(255, 255, 0, 200))
@@ -273,7 +251,7 @@ void RigidBody::drawDebug(sf::RenderWindow& window) {
         window.draw(arrow2.data(), arrow2.size(), sf::PrimitiveType::Lines);
     }
 
-    if (length(appliedForce) > 0.1f && !isResting) {
+    if (length(appliedForce) > 0.1f) {
         sf::Vector2f forceEnd = position + normalise(appliedForce) * (length(appliedForce) / 50.0f);
         std::array<sf::Vertex, 2> forceLine = {
             sf::Vertex(position, sf::Color(255, 128, 0, 200)),
@@ -297,8 +275,4 @@ void RigidBody::updateCollisionInfo(float deltaTime) {
             [](const CollisionInfo& info) { return info.lifetime <= 0.0f; }),
         collisionInfos.end()
     );
-}
-
-void RigidBody::wake() {
-    isResting = false;
 }

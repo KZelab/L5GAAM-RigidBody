@@ -35,7 +35,7 @@ void PhysicsEngine::updateSpatialGrid() {
 
 void PhysicsEngine::update(float deltaTime) {
     for (auto& body : bodies) {
-        if (!body->getIsStatic() && !body->getIsResting()) {
+        if (!body->getIsStatic()) {
             body->applyForce(gravity * body->getMass());
         }
         body->updateCollisionInfo(deltaTime);
@@ -51,9 +51,8 @@ void PhysicsEngine::update(float deltaTime) {
     auto potentialCollisions = spatialGrid.getPotentialCollisions();
 
     for (const auto& pair : potentialCollisions) {
-        // Skip if both bodies are static or resting
-        if ((pair.first->getIsStatic() || pair.first->getIsResting()) &&
-            (pair.second->getIsStatic() || pair.second->getIsResting())) {
+        // Skip if both bodies are static
+        if (pair.first->getIsStatic() && pair.second->getIsStatic()) {
             continue;
         }
         checkCollision(*pair.first, *pair.second);
@@ -100,10 +99,6 @@ void PhysicsEngine::checkCollision(RigidBody& body1, RigidBody& body2) {
             distance = 0.001f;
             diff = sf::Vector2f(1.0f, 0.0f) * minDistance;  // Push apart horizontally
         }
-
-        // Wake up any sleeping bodies (collision means they're active!)
-        body1.wake();
-        body2.wake();
 
         // STEP 2: CALCULATE COLLISION GEOMETRY
         /**
@@ -404,11 +399,9 @@ void PhysicsEngine::drawBatchedGlows(sf::RenderWindow& window) {
         float radius = body->getRadius();
         sf::Color colour = body->getColour();
         float impactIntensity = body->impactIntensity;
-        bool isResting = body->getIsResting();
 
         // Calculate display color
-        sf::Color displayColour = isResting ?
-            sf::Color(colour.r / 2, colour.g / 2, colour.b / 2) : colour;
+        sf::Color displayColour = colour;
 
         float flashIntensity = impactIntensity * 100.0f;
         displayColour.r = std::min(255, static_cast<int>(displayColour.r + flashIntensity));
@@ -418,7 +411,7 @@ void PhysicsEngine::drawBatchedGlows(sf::RenderWindow& window) {
         // Draw glow layers as triangle fans
         for (int layer = glowLayers; layer > 0; --layer) {
             float glowRadius = radius + (layer * 4.0f) + (impactIntensity * 5.0f);
-            float alpha = isResting ? 10.0f : 20.0f;
+            float alpha = 20.0f;
             alpha = alpha / (layer + 1) + (impactIntensity * 30.0f);
 
             sf::Color glowColor(displayColour.r, displayColour.g, displayColour.b,
@@ -493,9 +486,6 @@ void PhysicsEngine::draw(sf::RenderWindow& window, bool showVelocity, bool showT
 
 void PhysicsEngine::setGravity(const sf::Vector2f& g) {
     gravity = g;
-    for (auto& body : bodies) {
-        body->wake();
-    }
 }
 
 RigidBody* PhysicsEngine::getBodyAt(const sf::Vector2f& point) {
