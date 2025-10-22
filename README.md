@@ -157,22 +157,6 @@ for (size_t i = 0; i < bodies.size(); ++i) {
 }
 ```
 
-## Building and Running
-
-### Prerequisites
-- Visual Studio 2019 or later
-- SFML 3.x library (install via vcpkg)
-
-### Compilation
-```bash
-# Using vcpkg
-vcpkg install sfml:x64-windows
-
-# Open AdvancedRigidBodies.sln in Visual Studio
-# Build → Build Solution (F7)
-# Run (F5)
-```
-
 ### Controls
 - **Left Click**: Add a new object at cursor
 - **Right Click + Drag**: Grab and move objects
@@ -183,57 +167,6 @@ vcpkg install sfml:x64-windows
 - **T**: Toggle motion trails
 - **D**: Toggle debug visualization
 
-## Exercises
-
-### Exercise 1: Modify Gravity
-1. Run the simulation and observe the default behavior
-2. Use the gravity slider to set gravity to 0
-   - **Question**: What happens? Why?
-3. Set gravity to 1000
-   - **Question**: Do all objects fall at the same rate? Why?
-4. Set gravity to -500 (negative = upward)
-   - **Question**: What happens now?
-
-### Exercise 2: Understand DeltaTime
-1. Add a print statement in the game loop:
-   ```cpp
-   std::cout << "DeltaTime: " << deltaTime << " FPS: " << 1.0f/deltaTime << std::endl;
-   ```
-2. Run and observe the values
-   - **Question**: Does deltaTime stay constant? Why not?
-3. What happens to FPS when you add 100 objects?
-
-### Exercise 3: Experiment with Integration
-1. Find the `update()` method in `RigidBody.cpp`
-2. Try explicit Euler (swap the order):
-   ```cpp
-   position += velocity * deltaTime;      // Position first
-   velocity += acceleration * deltaTime;  // Then velocity
-   ```
-3. **Question**: Do you notice any difference in behavior?
-
-### Exercise 4: Vector Math
-1. In `RigidBody.cpp`, add a constant velocity:
-   ```cpp
-   velocity += sf::Vector2f(50.0f, 0.0f) * deltaTime;  // Push right
-   ```
-2. **Question**: What happens to the objects?
-3. Try different vectors:
-   - `(0.0f, -100.0f)` - push up
-   - `(100.0f, 100.0f)` - push diagonally
-
-## Performance Metrics
-
-| Bodies | FPS | Collision Checks | Draw Calls |
-|--------|-----|------------------|------------|
-| 10     | 60  | 45               | ~60        |
-| 30     | 60  | 435              | ~180       |
-| 50     | 45  | 1,225            | ~300       |
-| 100    | 25  | 4,950            | ~600       |
-
-**Observation**: Performance degrades significantly with more objects!
-- **Why?** O(n²) collision detection (we'll fix in Stage 7)
-- **Why?** Lots of draw calls (we'll fix in Stage 8)
 
 ## Discussion Questions
 
@@ -257,49 +190,6 @@ vcpkg install sfml:x64-windows
 7. **What happens when you click very fast to add many objects?**
    - Why does the simulation slow down?
 
-## Common Mistakes to Avoid
-
-❌ **Forgetting to multiply by deltaTime**
-```cpp
-position += velocity;  // WRONG - frame-dependent!
-```
-✅ **Correct approach**
-```cpp
-position += velocity * deltaTime;  // RIGHT - frame-independent
-```
-
-❌ **Clearing velocity instead of acceleration**
-```cpp
-velocity = {0, 0};  // WRONG - objects would stop immediately!
-```
-✅ **Correct approach**
-```cpp
-acceleration = {0, 0};  // RIGHT - clear forces, keep velocity
-```
-
-❌ **Ignoring static objects in collision**
-```cpp
-// WRONG - tries to move immovable object!
-body1.setPosition(...);
-body2.setPosition(...);
-```
-✅ **Correct approach**
-```cpp
-if (!body1.getIsStatic()) {
-    body1.setPosition(...);
-}
-```
-
-## Next Steps
-
-In **Stage 2 (Newton's Laws)**, we'll explore:
-- Newton's First Law (Inertia)
-- Newton's Second Law (F = ma)
-- Newton's Third Law (Action-Reaction)
-- Force accumulation and application
-- Why mass matters in collisions
-
-**Preview Question**: If a heavy ball hits a light ball, which one moves more? Why?
 
 ## Further Reading
 
@@ -309,6 +199,3 @@ In **Stage 2 (Newton's Laws)**, we'll explore:
 - [SFML Documentation](https://www.sfml-dev.org/documentation/3.0.0/)
 
 ---
-
-**Time Estimate**: 2-3 hours to complete exercises and understand concepts
-**Difficulty**: ⭐☆☆☆☆ (Beginner)
