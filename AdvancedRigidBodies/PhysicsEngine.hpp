@@ -4,7 +4,6 @@
 #include <memory>
 #include "RigidBody.hpp"
 #include "ParticleSystem.hpp"
-#include "SpatialGrid.hpp"
 
 class PhysicsEngine {
 public:
@@ -24,11 +23,9 @@ public:
 
 private:
     void checkCollision(RigidBody& body1, RigidBody& body2);
-    void updateSpatialGrid();
 
     std::vector<std::unique_ptr<RigidBody>> bodies;
     ParticleSystem particleSystem;
-    SpatialGrid spatialGrid;
     sf::Vector2f gravity;
     float worldWidth;
     float worldHeight;

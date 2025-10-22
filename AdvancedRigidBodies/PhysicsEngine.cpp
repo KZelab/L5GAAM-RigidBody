@@ -5,8 +5,7 @@
 using namespace PhysicsUtils;
 
 PhysicsEngine::PhysicsEngine(float width, float height)
-    : worldWidth(width), worldHeight(height), gravity(0.f, 500.f),
-      spatialGrid(width, height, 100.0f) {
+    : worldWidth(width), worldHeight(height), gravity(0.f, 500.f) {
 }
 
 void PhysicsEngine::addBody(std::unique_ptr<RigidBody> body) {
@@ -26,13 +25,6 @@ size_t PhysicsEngine::getDynamicBodyCount() const {
         [](const std::unique_ptr<RigidBody>& body) { return !body->getIsStatic(); });
 }
 
-void PhysicsEngine::updateSpatialGrid() {
-    spatialGrid.clear();
-    for (auto& body : bodies) {
-        spatialGrid.insert(body.get());
-    }
-}
-
 void PhysicsEngine::update(float deltaTime) {
     for (auto& body : bodies) {
         if (!body->getIsStatic()) {
@@ -46,16 +38,18 @@ void PhysicsEngine::update(float deltaTime) {
         body->checkBoundaryCollision(worldWidth, worldHeight);
     }
 
-    // Use spatial grid for collision detection
-    updateSpatialGrid();
-    auto potentialCollisions = spatialGrid.getPotentialCollisions();
-
-    for (const auto& pair : potentialCollisions) {
-        // Skip if both bodies are static
-        if (pair.first->getIsStatic() && pair.second->getIsStatic()) {
-            continue;
+    // O(n²) COLLISION DETECTION - Check every pair
+    // This is intentionally slow to demonstrate the performance problem!
+    // For n bodies, we perform n(n-1)/2 collision checks
+    // Example: 100 bodies = 4,950 checks, 200 bodies = 19,900 checks!
+    for (size_t i = 0; i < bodies.size(); ++i) {
+        for (size_t j = i + 1; j < bodies.size(); ++j) {
+            // Skip if both bodies are static (they won't interact)
+            if (bodies[i]->getIsStatic() && bodies[j]->getIsStatic()) {
+                continue;
+            }
+            checkCollision(*bodies[i], *bodies[j]);
         }
-        checkCollision(*pair.first, *pair.second);
     }
 
     particleSystem.update(deltaTime);
