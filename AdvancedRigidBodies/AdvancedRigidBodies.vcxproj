@@ -145,11 +145,9 @@
     <ClCompile Include="ParticleSystem.cpp" />
     <ClCompile Include="RigidBody.cpp" />
     <ClCompile Include="PhysicsEngine.cpp" />
-    <ClCompile Include="SpatialGrid.cpp" />
     <ClCompile Include="UIControls.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="SpatialGrid.hpp" />
     <ClInclude Include="Vector2Utils.hpp" />
     <ClInclude Include="ParticleSystem.hpp" />
     <ClInclude Include="RigidBody.hpp" />
