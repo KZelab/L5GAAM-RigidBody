@@ -8,7 +8,7 @@ RigidBody::RigidBody(sf::Vector2f pos, float r, float m, sf::Color col, bool sta
     : position(pos), radius(r), mass(m), colour(col), isStatic(stat),
       velocity(0.f, 0.f), acceleration(0.f, 0.f), rotation(0.f),
       angularVelocity(0.f), angularAcceleration(0.f),
-      restitution(0.6f), friction(0.3f), trailTimer(0.0f),
+      restitution(0.6f), friction(0.0f), trailTimer(0.0f),
       impactIntensity(0.0f), squashStretch(1.0f), appliedForce(0.f, 0.f) {
 
     inertia = 0.5f * mass * radius * radius;

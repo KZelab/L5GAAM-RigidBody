@@ -306,76 +306,7 @@ void PhysicsEngine::checkCollision(RigidBody& body1, RigidBody& body2) {
             body2.setAngularVelocity(body2.getAngularVelocity() + cross(r2, impulse) / body2.getInertia());
         }
 
-        // STEP 7: FRICTION (Tangential Impulse)
-        /**
-         * FRICTION opposes sliding motion
-         * Acts perpendicular (tangent) to the collision normal
-         *
-         * TANGENT DIRECTION:
-         * - Normal = perpendicular to surface (bounce direction)
-         * - Tangent = parallel to surface (sliding direction)
-         *
-         * VISUAL:
-         *        normal ↑
-         *               |
-         *    ← tangent--O-→ tangent (sliding motion)
-         *               |
-         *               ↓
-         *
-         * We remove the normal component from relative velocity to get tangent
-         */
-        sf::Vector2f tangent = relativeVelocity - normal * velocityAlongNormal;
-
-        // Only apply friction if there's tangential motion
-        if (length(tangent) > 0.001f) {
-            tangent = normalise(tangent);
-
-            /**
-             * COEFFICIENT OF FRICTION
-             * Average the friction coefficients of both materials
-             * Example: Rubber (0.8) on ice (0.1) → average = 0.45
-             */
-            float frictionCoeff = (body1.friction + body2.friction) * 0.5f;
-
-            /**
-             * FRICTION IMPULSE MAGNITUDE
-             * Similar formula to normal impulse, but along tangent direction
-             */
-            float jt = -dot(relativeVelocity, tangent);
-            jt /= (invMassSum + invInertiaSum);
-
-            /**
-             * COULOMB FRICTION LAW
-             * Friction force is limited by normal force
-             * - μ (mu) = coefficient of friction
-             * - F_friction ≤ μ × F_normal
-             *
-             * In impulse terms: J_friction ≤ μ × J_normal
-             *
-             * PHYSICAL MEANING:
-             * - Can't have more friction than the normal force allows
-             * - Heavy normal force → more friction possible
-             * - Light normal force → less friction possible
-             * Example: Pushing down on object makes it harder to slide
-             */
-            float frictionLimit = std::abs(j * frictionCoeff);
-            jt = std::clamp(jt, -frictionLimit, frictionLimit);
-
-            /**
-             * APPLY FRICTION IMPULSE
-             * Same process as normal impulse, but along tangent
-             * This slows down sliding and creates realistic rolling/skidding
-             */
-            sf::Vector2f frictionImpulse = jt * tangent;
-            if (!body1.getIsStatic()) {
-                body1.setVelocity(body1.getVelocity() - frictionImpulse / body1.getMass());
-                body1.setAngularVelocity(body1.getAngularVelocity() - cross(r1, frictionImpulse) / body1.getInertia());
-            }
-            if (!body2.getIsStatic()) {
-                body2.setVelocity(body2.getVelocity() + frictionImpulse / body2.getMass());
-                body2.setAngularVelocity(body2.getAngularVelocity() + cross(r2, frictionImpulse) / body2.getInertia());
-            }
-        }
+        // Friction will be added in Stage 5
     }
 }
 
