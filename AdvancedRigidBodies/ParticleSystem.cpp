@@ -50,57 +50,23 @@ void ParticleSystem::update(float deltaTime) {
 }
 
 void ParticleSystem::draw(sf::RenderWindow& window) {
-    if (particles.empty()) return;
-
-    // Clear vertex arrays
-    particleVertices.clear();
-    glowVertices.clear();
-    particleVertices.setPrimitiveType(sf::PrimitiveType::Triangles);
-    glowVertices.setPrimitiveType(sf::PrimitiveType::Triangles);
-
-    const int segments = 8; // Reduced segment count for performance
-
     for (const auto& particle : particles) {
         sf::Color col = particle.colour;
         uint8_t alpha = static_cast<uint8_t>(particle.getAlpha());
         col.a = alpha;
 
         // Draw glow (larger circle with lower alpha)
+        sf::CircleShape glow(particle.size * 2.0f);
+        glow.setPosition(particle.position - sf::Vector2f(particle.size * 2.0f, particle.size * 2.0f));
         sf::Color glowCol = col;
         glowCol.a = static_cast<uint8_t>(alpha * 0.3f);
-        float glowSize = particle.size * 2.0f;
+        glow.setFillColor(glowCol);
+        window.draw(glow);
 
-        for (int i = 0; i < segments; ++i) {
-            float angle1 = (i * 2.0f * 3.14159f) / segments;
-            float angle2 = ((i + 1) * 2.0f * 3.14159f) / segments;
-
-            sf::Vector2f p1 = particle.position + sf::Vector2f(std::cos(angle1) * glowSize,
-                                                                std::sin(angle1) * glowSize);
-            sf::Vector2f p2 = particle.position + sf::Vector2f(std::cos(angle2) * glowSize,
-                                                                std::sin(angle2) * glowSize);
-
-            glowVertices.append(sf::Vertex(particle.position, glowCol));
-            glowVertices.append(sf::Vertex(p1, glowCol));
-            glowVertices.append(sf::Vertex(p2, glowCol));
-        }
-
-        // Draw main particle (smaller circle)
-        for (int i = 0; i < segments; ++i) {
-            float angle1 = (i * 2.0f * 3.14159f) / segments;
-            float angle2 = ((i + 1) * 2.0f * 3.14159f) / segments;
-
-            sf::Vector2f p1 = particle.position + sf::Vector2f(std::cos(angle1) * particle.size,
-                                                                std::sin(angle1) * particle.size);
-            sf::Vector2f p2 = particle.position + sf::Vector2f(std::cos(angle2) * particle.size,
-                                                                std::sin(angle2) * particle.size);
-
-            particleVertices.append(sf::Vertex(particle.position, col));
-            particleVertices.append(sf::Vertex(p1, col));
-            particleVertices.append(sf::Vertex(p2, col));
-        }
+        // Draw main particle
+        sf::CircleShape shape(particle.size);
+        shape.setPosition(particle.position - sf::Vector2f(particle.size, particle.size));
+        shape.setFillColor(col);
+        window.draw(shape);
     }
-
-    // Draw both in 2 draw calls total
-    window.draw(glowVertices);
-    window.draw(particleVertices);
 }

@@ -123,7 +123,19 @@ void RigidBody::draw(sf::RenderWindow& window, bool showVelocity) {
     displayColour.g = std::min(255, static_cast<int>(displayColour.g + flashIntensity));
     displayColour.b = std::min(255, static_cast<int>(displayColour.b + flashIntensity));
 
-    // Glows are now drawn in batched mode by PhysicsEngine
+    // Draw glow layers (background effect)
+    if (!isStatic) {
+        for (int i = 3; i > 0; --i) {
+            float glowRadius = radius + (i * 4.0f) + (impactIntensity * 5.0f);
+            float alpha = 20.0f / (i + 1) + (impactIntensity * 30.0f);
+
+            sf::CircleShape glow(glowRadius);
+            glow.setPosition(position - sf::Vector2f(glowRadius, glowRadius));
+            glow.setFillColor(sf::Color(displayColour.r, displayColour.g, displayColour.b,
+                                        static_cast<uint8_t>(alpha)));
+            window.draw(glow);
+        }
+    }
 
     sf::Vector2f scale(1.0f, 1.0f);
     if (impactIntensity > 0.01f) {
@@ -147,12 +159,11 @@ void RigidBody::draw(sf::RenderWindow& window, bool showVelocity) {
         shape.setOutlineColor(sf::Color(60, 60, 70, 150));
     } else {
         shape.setOutlineThickness(1.5f);
-        uint8_t outlineAlpha = isResting ? 100 : 200;
         shape.setOutlineColor(sf::Color(
             std::min(255, static_cast<int>(displayColour.r * 1.3f)),
             std::min(255, static_cast<int>(displayColour.g * 1.3f)),
             std::min(255, static_cast<int>(displayColour.b * 1.3f)),
-            outlineAlpha
+            200
         ));
     }
     window.draw(shape);

@@ -25,8 +25,6 @@ public:
 private:
     void checkCollision(RigidBody& body1, RigidBody& body2);
     void updateSpatialGrid();
-    void drawBatchedGlows(sf::RenderWindow& window);
-    void drawBatchedTrails(sf::RenderWindow& window);
 
     std::vector<std::unique_ptr<RigidBody>> bodies;
     ParticleSystem particleSystem;
@@ -34,8 +32,4 @@ private:
     sf::Vector2f gravity;
     float worldWidth;
     float worldHeight;
-
-    // Vertex arrays for batched rendering
-    sf::VertexArray glowVertices;
-    sf::VertexArray trailVertices;
 };

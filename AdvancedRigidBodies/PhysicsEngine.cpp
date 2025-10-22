@@ -385,93 +385,18 @@ void PhysicsEngine::checkCollision(RigidBody& body1, RigidBody& body2) {
     }
 }
 
-void PhysicsEngine::drawBatchedGlows(sf::RenderWindow& window) {
-    glowVertices.clear();
-    glowVertices.setPrimitiveType(sf::PrimitiveType::Triangles);
-
-    const int glowLayers = 3;
-    const int segments = 16; // Reduced from default circle resolution for performance
-
-    for (const auto& body : bodies) {
-        if (body->getIsStatic()) continue;
-
-        sf::Vector2f pos = body->getPosition();
-        float radius = body->getRadius();
-        sf::Color colour = body->getColour();
-        float impactIntensity = body->impactIntensity;
-
-        // Calculate display color
-        sf::Color displayColour = colour;
-
-        float flashIntensity = impactIntensity * 100.0f;
-        displayColour.r = std::min(255, static_cast<int>(displayColour.r + flashIntensity));
-        displayColour.g = std::min(255, static_cast<int>(displayColour.g + flashIntensity));
-        displayColour.b = std::min(255, static_cast<int>(displayColour.b + flashIntensity));
-
-        // Draw glow layers as triangle fans
-        for (int layer = glowLayers; layer > 0; --layer) {
-            float glowRadius = radius + (layer * 4.0f) + (impactIntensity * 5.0f);
-            float alpha = 20.0f;
-            alpha = alpha / (layer + 1) + (impactIntensity * 30.0f);
-
-            sf::Color glowColor(displayColour.r, displayColour.g, displayColour.b,
-                               static_cast<uint8_t>(alpha));
-
-            // Create triangle fan for circle
-            for (int i = 0; i < segments; ++i) {
-                float angle1 = (i * 2.0f * 3.14159f) / segments;
-                float angle2 = ((i + 1) * 2.0f * 3.14159f) / segments;
-
-                sf::Vector2f p1 = pos + sf::Vector2f(std::cos(angle1) * glowRadius,
-                                                      std::sin(angle1) * glowRadius);
-                sf::Vector2f p2 = pos + sf::Vector2f(std::cos(angle2) * glowRadius,
-                                                      std::sin(angle2) * glowRadius);
-
-                glowVertices.append(sf::Vertex(pos, glowColor));
-                glowVertices.append(sf::Vertex(p1, glowColor));
-                glowVertices.append(sf::Vertex(p2, glowColor));
-            }
-        }
-    }
-
-    window.draw(glowVertices);
-}
-
-void PhysicsEngine::drawBatchedTrails(sf::RenderWindow& window) {
-    trailVertices.clear();
-    trailVertices.setPrimitiveType(sf::PrimitiveType::Lines);
-
-    for (const auto& body : bodies) {
-        const auto& trail = body->getMotionTrail();
-        sf::Color colour = body->getColour();
-
-        if (trail.size() < 2) continue;
-
-        for (size_t i = 1; i < trail.size(); ++i) {
-            uint8_t alpha = static_cast<uint8_t>(trail[i].alpha * 150);
-            sf::Color trailColor(colour.r, colour.g, colour.b, alpha);
-
-            trailVertices.append(sf::Vertex(trail[i - 1].position, trailColor));
-            trailVertices.append(sf::Vertex(trail[i].position, trailColor));
-        }
-    }
-
-    window.draw(trailVertices);
-}
-
 void PhysicsEngine::draw(sf::RenderWindow& window, bool showVelocity, bool showTrails, bool showDebug) {
-    // Draw batched glows first (background layer)
-    drawBatchedGlows(window);
-
-    // Draw batched trails
-    if (showTrails) {
-        drawBatchedTrails(window);
-    }
-
-    // Draw particles (will be optimized separately)
+    // Draw particles
     particleSystem.draw(window);
 
-    // Draw bodies (main shapes, cores, rotation indicators)
+    // Draw motion trails
+    if (showTrails) {
+        for (auto& body : bodies) {
+            body->drawMotionTrail(window);
+        }
+    }
+
+    // Draw bodies (glows, main shapes, cores, rotation indicators)
     for (auto& body : bodies) {
         body->draw(window, showVelocity);
     }

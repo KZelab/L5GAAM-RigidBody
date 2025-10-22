@@ -136,14 +136,6 @@ private:
     std::mt19937 gen{std::random_device{}()};
 
     /**
-     * BATCHED RENDERING - Store all particle triangles
-     * Instead of drawing each particle separately,
-     * build one big vertex array and draw once
-     */
-    sf::VertexArray particleVertices;  // Main particle circles
-    sf::VertexArray glowVertices;      // Glow effect circles
-
-    /**
      * PERFORMANCE LIMIT
      * Cap particle count to prevent frame rate drops
      * During intense collisions, skip creating new particles if at limit
