@@ -51,15 +51,14 @@ void RigidBody::update(float deltaTime) {
         trailTimer += deltaTime;
         if (trailTimer >= TRAIL_UPDATE_INTERVAL) {
             trailTimer = 0.0f;
-                motionTrail.push_front({position, 1.0f});
-                if (motionTrail.size() > MAX_TRAIL_LENGTH) {
-                    motionTrail.pop_back();
-                }
+            motionTrail.push_front({position, 1.0f});
+            if (motionTrail.size() > MAX_TRAIL_LENGTH) {
+                motionTrail.pop_back();
             }
+        }
 
-            for (auto& trail : motionTrail) {
-                trail.alpha *= 0.95f;
-            }
+        for (auto& trail : motionTrail) {
+            trail.alpha *= 0.95f;
         }
 
         impactIntensity *= 0.9f;
