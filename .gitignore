@@ -194,3 +194,4 @@ _deps
 !*.vcxproj
 !README.md
 !.gitignore
+vcpkg_installed/

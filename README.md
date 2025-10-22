@@ -15,13 +15,13 @@ By the end of this stage, you will understand:
 
 **Big O** describes how an algorithm's runtime grows as the input size increases.
 
-| Notation | Name | Example | Growth |
-|----------|------|---------|--------|
-| O(1) | Constant | Array access: `arr[5]` | Same time regardless of size |
-| O(n) | Linear | Loop through array | Doubles time when size doubles |
-| O(n log n) | Linearithmic | Merge sort | Efficient sorting |
-| **O(n²)** | **Quadratic** | **Nested loops** | **4x time when size doubles!** |
-| O(2ⁿ) | Exponential | Recursive fibonacci | Extremely slow |
+| Notation  | Name          | Example                | Growth 
+|---------- |------         |---------               |--------
+| O(1)      | Constant      | Array access: `arr[5]` | Same time regardless of size 
+| O(n)      | Linear        | Loop through array     | Doubles time when size doubles 
+| O(n log n)| Linearithmic  | Merge sort             | Efficient sorting 
+| **O(n²)** | **Quadratic** | **Nested loops**       | **4x time when size doubles!** 
+| O(2ⁿ)     | Exponential   | Recursive fibonacci    | Extremely slow 
 
 **Focus: O(n²) - Quadratic Complexity**
 
