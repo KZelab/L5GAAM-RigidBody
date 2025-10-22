@@ -205,18 +205,6 @@ void PhysicsEngine::checkCollision(RigidBody& body1, RigidBody& body2) {
         float e = std::min(body1.restitution, body2.restitution);
 
         /**
-         * CROSS PRODUCT: r × n
-         * In 2D, cross product gives a SCALAR (in 3D it's a vector)
-         * Used to calculate rotational effect of impulse
-         *
-         * Physics meaning: How much torque will the impulse create?
-         * - Large r × n: Force applied far from center → lots of spin
-         * - Small r × n: Force near center → little spin
-         */
-        float r1CrossN = cross(r1, normal);
-        float r2CrossN = cross(r2, normal);
-
-        /**
          * INVERSE MASS SUM
          * For collision resolution, we work with inverse mass (1/m)
          * Why? Static objects have infinite mass, so 1/∞ = 0 (easy to handle!)
@@ -227,16 +215,8 @@ void PhysicsEngine::checkCollision(RigidBody& body1, RigidBody& body2) {
         if (!body1.getIsStatic()) invMassSum += 1.0f / body1.getMass();
         if (!body2.getIsStatic()) invMassSum += 1.0f / body2.getMass();
 
-        /**
-         * INVERSE INERTIA SUM (rotational component)
-         * Similar to inverse mass, but for rotation
-         * Weighted by (r × n)² because off-center impacts create more rotation
-         *
-         * Physics: How much will the impulse cause spinning?
-         */
+        // Rotation will be added in Stage 4
         float invInertiaSum = 0.0f;
-        if (!body1.getIsStatic()) invInertiaSum += (r1CrossN * r1CrossN) / body1.getInertia();
-        if (!body2.getIsStatic()) invInertiaSum += (r2CrossN * r2CrossN) / body2.getInertia();
 
         /**
          * IMPULSE FORMULA (derived from conservation of momentum and energy)
@@ -294,16 +274,12 @@ void PhysicsEngine::checkCollision(RigidBody& body1, RigidBody& body2) {
          * - Off-center hits create more spin (larger r × J)
          */
         if (!body1.getIsStatic()) {
-            // Linear velocity change
+            // Linear velocity change only (no rotation yet)
             body1.setVelocity(body1.getVelocity() - impulse / body1.getMass());
-
-            // Angular velocity change (torque from impulse)
-            body1.setAngularVelocity(body1.getAngularVelocity() - cross(r1, impulse) / body1.getInertia());
         }
         if (!body2.getIsStatic()) {
             // Note the OPPOSITE sign on impulse (+) - Newton's 3rd Law!
             body2.setVelocity(body2.getVelocity() + impulse / body2.getMass());
-            body2.setAngularVelocity(body2.getAngularVelocity() + cross(r2, impulse) / body2.getInertia());
         }
 
         // Friction will be added in Stage 5

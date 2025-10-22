@@ -43,9 +43,10 @@ void RigidBody::update(float deltaTime) {
         position += velocity * deltaTime;
         velocity *= 0.99f;
 
-        angularVelocity += angularAcceleration * deltaTime;
-        rotation += angularVelocity * deltaTime;
-        angularVelocity *= 0.98f;
+        // Rotation will be added in Stage 4
+        rotation = 0.0f;
+        angularVelocity = 0.0f;
+        angularAcceleration = 0.0f;
 
         trailTimer += deltaTime;
         if (trailTimer >= TRAIL_UPDATE_INTERVAL) {
