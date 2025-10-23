@@ -1,4 +1,4 @@
-# Stage 6: Performance Crisis - The O(n²) Problem
+# Stage 4: Performance Crisis - The O(n²) Problem
 
 ## Learning Objectives
 
