@@ -194,3 +194,9 @@ _deps
 !*.vcxproj
 !README.md
 !.gitignore
+
+
+#vcpkg junk
+vcpkg_installed
+vcpkg.json
+.claude
