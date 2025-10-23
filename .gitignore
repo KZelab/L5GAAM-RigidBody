@@ -185,6 +185,9 @@ _deps
 *.swp
 *.tmp
 
+# vcpkg local installation (use system vcpkg instead)
+vcpkg_installed/
+
 # Keep these files
 !*.hpp
 !*.cpp
