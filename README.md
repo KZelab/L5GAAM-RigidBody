@@ -250,12 +250,12 @@ Only 9 cells instead of entire world!
 
 ## Performance Comparison
 
-| Metric | Stage 4 (Naive) | Stage 5 (Grid) | Improvement |
-|--------|-----------------|----------------|-------------|
-| 50 objects | 1,225 checks | ~750 checks | 1.6× |
-| 100 objects | 4,950 checks | ~1,500 checks | 3.3× |
-| 200 objects | 19,900 checks | ~3,000 checks | **6.6×** |
-| 500 objects | 124,750 checks | ~7,500 checks | **16.6×** |
+| Metric      | Stage 4 (Naive) | Stage 5 (Grid) | Improvement |
+|--------     |-----------------|----------------|-------------|
+| 50 objects  | 1,225 checks    | ~750 checks    | 1.6×
+| 100 objects | 4,950 checks    | ~1,500 checks  | 3.3× 
+| 200 objects | 19,900 checks   | ~3,000 checks  | **6.6×** 
+| 500 objects | 124,750 checks  | ~7,500 checks  | **16.6×** 
 
 Numbers are approximate - actual performance depends on object distribution.
 
