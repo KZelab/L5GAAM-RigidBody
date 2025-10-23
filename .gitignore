@@ -92,10 +92,6 @@ coverage*.info
 *.coverage
 *.coveragexml
 
-.claude
-vcpkg_installed
-vcpkg.json
-
 # NCrunch
 _NCrunch_*
 .*crunch*.local.xml
@@ -188,6 +184,9 @@ _deps
 *~
 *.swp
 *.tmp
+
+# vcpkg local installation (use system vcpkg instead)
+vcpkg_installed/
 
 # Keep these files
 !*.hpp
